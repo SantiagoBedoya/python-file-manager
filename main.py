@@ -3,6 +3,8 @@ import explorer
 
 MASTER_PATH = "./test"
 exp = explorer.Explorer(MASTER_PATH)
+
+
 nodes = sorted(exp.list(), key=lambda x: x.name, reverse=True)
 
 def render_items(data):
@@ -14,11 +16,10 @@ def render_items(data):
 
 def prev():
     if len(exp.history) >= 2:
-        exp.history.pop()
-        new_path = exp.history[-1]
-        new_nodes = exp.list(new_path)
+        new_path = exp.history[-2]
+        new_nodes = exp.list(new_path, True)
+        new_nodes = sorted(new_nodes, key=lambda x: x.name, reverse=True)
         lb.delete(0, tkinter.END)
-        print(new_nodes)
         render_items(new_nodes)
 
 
@@ -59,6 +60,7 @@ def callback(event):
     selection = event.widget.curselection()
     data = event.widget.get(selection[0])
     data = data.replace("> ", "")
+    data = data.replace("- ", "")
     if exp.is_folder(data):
         new_nodes = exp.list(data)
         lb.delete(0, tkinter.END)

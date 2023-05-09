@@ -10,17 +10,20 @@ class Explorer:
         self.path = path
         self.history = [path]
 
-    def list(self, path = None):
+    def list(self, path = None, is_prev = False):
         nodes = []
         uri = ""
         if path is None:
-            uri = self.path 
-        elif self.history[-1] == path:
-            uri = path
+            uri = self.path
         else:
-            uri = os.path.join(self.history[-1], path)
+            if is_prev:
+                uri = path
+                self.history.pop()
+            else:
+                uri = os.path.join(self.history[-1],  path)
+                self.history.append(uri)
 
-        print("printing -- ", uri)
+
         entries = os.listdir(uri)
         for file in entries:
             is_file = os.path.isfile(os.path.join(uri, file))
