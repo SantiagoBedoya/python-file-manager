@@ -44,12 +44,15 @@ class App:
         print(f"selected: {self._selected}")
         pass
     
+    def _create_entries(self):
+        
+        # search entry
+        search_entry = Entry(self._t, width=40)
+        search_entry.grid(row=0, column=100)
+    
     def _create_buttons(self):
         prev_btn = Button(self._t, text="<-", width=2, height=1, command=self._prev)
         prev_btn.grid(row=0, column=0)
-
-        search_entry = Entry(self._t, width=40)
-        search_entry.grid(row=0, column=100)
 
         search_btn = Button(self._t, text="Search", width=4, height=1)
         search_btn.grid(row=0, column=101)
@@ -95,6 +98,7 @@ class App:
         self._t.title('File Manager')
 
         self._create_buttons()
+        self._create_entries()
         self._create_list_box()
         self._set_listeners()
         self._render_items()
