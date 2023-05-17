@@ -3,6 +3,7 @@ import explorer
 
 MASTER_PATH = "./test"
 exp = explorer.Explorer(MASTER_PATH)
+selected = ""
 
 
 nodes = sorted(exp.list(), key=lambda x: x.name, reverse=True)
@@ -25,9 +26,9 @@ def prev():
 
 
 t = tkinter.Tk()
-t.geometry("500x500")
+t.geometry("500x520")
 t.title("File Manager")
-t.resizable(width=False, height=False)
+# t.resizable(width=False, height=False)
 
 
 prev_btn = tkinter.Button(t, text="<-", width=2, height=1, command=prev)
@@ -56,6 +57,13 @@ lb_scrollbar = tkinter.Scrollbar(t)
 lb.config(yscrollcommand=lb_scrollbar.set)
 lb_scrollbar.config(command=lb.yview)
 
+def ondelete():
+    print(f"selected: {selected}")
+    pass
+
+delete_btn = tkinter.Button(t, text="Delete", width=4, height=1, command=ondelete)
+delete_btn.grid(row=4, columnspan=150)
+
 def callback(event):
     selection = event.widget.curselection()
     data = event.widget.get(selection[0])
@@ -66,7 +74,15 @@ def callback(event):
         lb.delete(0, tkinter.END)
         render_items(new_nodes)
 
+def onselect(event):
+    selection = event.widget.curselection()
+    data = event.widget.get(selection[0])
+    data = data.replace("> ", "")
+    data = data.replace("- ", "")
+
+
 lb.bind("<Double-1>", callback)
+lb.bind("<<ListboxSelect>>", onselect)
 
 render_items(nodes)
 
