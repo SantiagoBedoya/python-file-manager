@@ -10,8 +10,23 @@ class Explorer:
         self.path = path
         self.history = [path]
 
-    def list(self, path = None, is_prev = False):
+    def delete(self, path):
+        uri = os.path.join(self.history[-1],  path)
+        if os.path.isdir(uri):
+            os.rmdir(uri)
+        else:
+            os.remove(uri)
+    
+    def _list(self, path):
         nodes = []
+        entries = os.listdir(path)
+        for file in entries:
+            is_file = os.path.isfile(os.path.join(path, file))
+            nodes.append(Node(file, is_file))
+
+        return nodes
+
+    def list(self, path = None, is_prev = False):
         uri = ""
         if path is None:
             uri = self.path
@@ -23,13 +38,7 @@ class Explorer:
                 uri = os.path.join(self.history[-1],  path)
                 self.history.append(uri)
 
-
-        entries = os.listdir(uri)
-        for file in entries:
-            is_file = os.path.isfile(os.path.join(uri, file))
-            nodes.append(Node(file, is_file))
-
-        return nodes
+        return self._list(uri)
 
     def is_folder(self, path):
         return not os.path.isfile(os.path.join(self.path, path))

@@ -7,13 +7,23 @@ class App:
         self._master_path = './test'
         self._selected = ''
         self._exp = Explorer(self._master_path)
-        self._nodes = sorted(
-            self._exp.list(), key=lambda x: x.name, reverse=True)
+        self._nodes = []
         self._t = Tk()
 
         self._list_box = None
-        pass
-    
+        
+        self._get_nodes(None)
+
+    def _get_nodes(self, path):
+        uri = None
+        if path is not None:
+            uri = path
+        self._nodes = sorted(
+            self._exp.list(uri),
+            key=lambda x: x.name,
+            reverse=True
+        )
+
     def _create_list_box(self):
         self._list_box = Listbox(
             self._t,
@@ -33,39 +43,46 @@ class App:
 
     def _prev(self):
         if len(self._exp.history) >= 2:
-          new_path = self._exp.history[-2]
-          new_nodes = self._exp.list(new_path, True)
-          new_nodes = sorted(new_nodes, key=lambda x: x.name, reverse=True)
-          self._list_box.delete(0, END)
-          self._nodes = new_nodes
-          self._render_items()
+            new_path = self._exp.history[-2]
+            new_nodes = self._exp.list(new_path, True)
+            new_nodes = sorted(new_nodes, key=lambda x: x.name, reverse=True)
+            self._clean_list_box()
+            self._nodes = new_nodes
+            self._render_items()
+
+    def _clean_list_box(self):
+        self._list_box.delete(0, END)
 
     def _delete_file(self):
-        print(f"selected: {self._selected}")
-        pass
-    
+        self._exp.delete(self._selected)
+        new_nodes = self._exp._list(self._exp.history[-1])
+        self._nodes = new_nodes
+        self._clean_list_box()
+        self._render_items()
+
     def _create_entries(self):
-        
         # search entry
         search_entry = Entry(self._t, width=40)
         search_entry.grid(row=0, column=100)
-    
+
     def _create_buttons(self):
-        prev_btn = Button(self._t, text="<-", width=2, height=1, command=self._prev)
+        prev_btn = Button(self._t, text="<-", width=2,
+                          height=1, command=self._prev)
         prev_btn.grid(row=0, column=0)
 
         search_btn = Button(self._t, text="Search", width=4, height=1)
         search_btn.grid(row=0, column=101)
 
-        delete_btn = Button(self._t, text="Delete", width=4, height=1, command=self._delete_file)
+        delete_btn = Button(self._t, text="Delete", width=4,
+                            height=1, command=self._delete_file)
         delete_btn.grid(row=4, columnspan=150)
 
     def _render_items(self):
         for node in self._nodes:
-          if node.is_file:
-              self._list_box.insert(END, f"- {node.name}")
-          else:
-              self._list_box.insert(END, f"> {node.name}")
+            if node.is_file:
+                self._list_box.insert(END, f"- {node.name}")
+            else:
+                self._list_box.insert(END, f"> {node.name}")
 
     def _open_folder(self, event):
         selection = event.widget.curselection()
@@ -74,19 +91,19 @@ class App:
         data = data.replace("- ", "")
         if self._exp.is_folder(data):
             new_nodes = self._exp.list(data)
-            self._list_box.delete(0, END)
+            self._clean_list_box()
             self._nodes = new_nodes
             self._render_items()
-    
+
     def _select_item(self, event):
         selection = event.widget.curselection()
         data = event.widget.get(selection[0])
         data = data.replace("> ", "")
         data = data.replace("- ", "")
-        self._selected = data 
+        self._selected = data
 
     def _set_listeners(self):
-        
+
         # on double click
         self._list_box.bind("<Double-1>", self._open_folder)
 
