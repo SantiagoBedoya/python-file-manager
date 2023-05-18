@@ -1,4 +1,5 @@
 import os
+import shutil
 
 class Node:
     def __init__(self, name, is_file) -> None:
@@ -13,7 +14,7 @@ class Explorer:
     def delete(self, path):
         uri = os.path.join(self.history[-1],  path)
         if os.path.isdir(uri):
-            os.rmdir(uri)
+            shutil.rmtree(uri)
         else:
             os.remove(uri)
     

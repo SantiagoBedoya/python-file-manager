@@ -56,7 +56,7 @@ class App:
     def _delete_file(self):
         self._exp.delete(self._selected)
         new_nodes = self._exp._list(self._exp.history[-1])
-        self._nodes = new_nodes
+        self._nodes = sorted(new_nodes, key=lambda x: x.name, reverse=True)
         self._clean_list_box()
         self._render_items()
 
