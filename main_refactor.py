@@ -11,6 +11,7 @@ class App:
         self._t = Tk()
 
         self._list_box = None
+        self._rename_entry = None
         
         self._get_nodes(None)
 
@@ -65,6 +66,19 @@ class App:
         search_entry = Entry(self._t, width=40)
         search_entry.grid(row=0, column=100)
 
+        # rename entry
+        rename_entry = Entry(self._t, width=40)
+        rename_entry.grid(row=4, columnspan=150)
+        self._rename_entry = rename_entry
+
+    def _rename_file(self):
+        new_name = self._rename_entry.get()
+        self._exp.rename(self._selected, new_name)
+        new_nodes = self._exp._list(self._exp.history[-1])
+        self._nodes = sorted(new_nodes, key=lambda x: x.name, reverse=True)
+        self._clean_list_box()
+        self._render_items()
+
     def _create_buttons(self):
         prev_btn = Button(self._t, text="<-", width=2,
                           height=1, command=self._prev)
@@ -75,7 +89,10 @@ class App:
 
         delete_btn = Button(self._t, text="Delete", width=4,
                             height=1, command=self._delete_file)
-        delete_btn.grid(row=4, columnspan=150)
+        delete_btn.grid(row=6, columnspan=150)
+        rename_btn = Button(self._t, text="Rename", width=4,
+                            height=1, command=self._rename_file)
+        rename_btn.grid(row=5, columnspan=150)
 
     def _render_items(self):
         for node in self._nodes:
@@ -102,6 +119,11 @@ class App:
         data = data.replace("- ", "")
         self._selected = data
 
+        # clean entry
+        self._rename_entry.delete(0, END)
+        # set value to entry
+        self._rename_entry.insert(0, self._selected)
+
     def _set_listeners(self):
 
         # on double click
@@ -111,7 +133,7 @@ class App:
         self._list_box.bind("<<ListboxSelect>>", self._select_item)
 
     def render(self):
-        self._t.geometry('500x520')
+        self._t.geometry('500x580')
         self._t.title('File Manager')
 
         self._create_buttons()

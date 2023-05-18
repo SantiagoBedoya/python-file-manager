@@ -18,6 +18,11 @@ class Explorer:
         else:
             os.remove(uri)
     
+    def rename(self, path, new_name):
+        uri = os.path.join(self.history[-1],  path)
+        new_uri = os.path.join(self.history[-1],  new_name)
+        os.rename(uri, new_uri)
+    
     def _list(self, path):
         nodes = []
         entries = os.listdir(path)
