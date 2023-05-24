@@ -1,6 +1,6 @@
 from explorer import Explorer
 from tkinter import Tk, Listbox, Scrollbar, END, Button, Entry, StringVar, Toplevel, Label, messagebox
-
+import matplotlib.pyplot as plt
 
 class App:
     def __init__(self) -> None:
@@ -182,7 +182,7 @@ class App:
         selection = event.widget.curselection()
         if len(selection) == 0:
             return
-        data = event.widget.get(selection[0])
+        data = str(event.widget.get(selection[0]))
 
         data = data.removeprefix("> ")
         data = data.removeprefix("- ")
@@ -239,6 +239,7 @@ class App:
         self._clean_list_box()
         self._render_items()
         pass
+
 
     def render(self):
         self._t.geometry('500x530')
