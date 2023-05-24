@@ -66,6 +66,13 @@ class Explorer:
                 self.history.append(uri)
 
         return self._list(uri)
+    
+    def copy(self, copy_path, paste_path, is_cute = False):
+        if is_cute:
+            # if the action is cut and paste, copy2 keeps timestamps
+            shutil.move(copy_path, paste_path, shutil.copy2)
+        else:
+            shutil.copy(copy_path, paste_path)
 
     def is_folder(self, path):
         return not os.path.isfile(os.path.join(self.path, path))

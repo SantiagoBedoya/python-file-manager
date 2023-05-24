@@ -17,6 +17,8 @@ class App:
         self._create_entry = None
         self._create_win = None
 
+        self._copy_path = ''
+
         self._get_nodes(None)
 
     def _get_nodes(self, path):
@@ -200,6 +202,40 @@ class App:
 
         # search variable trace
         self._search_entry_text_variable.trace("w", self._filter)
+
+        # on ctrl/command + c
+        self._t.bind_all("<Control-c>", self._copy)
+        self._t.bind_all("<Command-c>", self._copy)
+
+        # on ctrl/command + x
+        self._t.bind_all("<Control-x>", self._cut)
+        self._t.bind_all("<Command-x>", self._cut)
+
+        # on ctrl/command + v
+        self._t.bind_all("<Control-v>", self._paste)
+        self._t.bind_all("<Command-v>", self._paste)
+
+    def _cut(self, event):
+        self._cut_path = f"{self._exp.history[-1]}/{self._selected}"
+        pass
+
+    def _copy(self, event):
+        self._copy_path = f"{self._exp.history[-1]}/{self._selected}"
+
+    def _paste(self, event):
+        paste_path = self._exp.history[-1]
+
+        if len(self._cut_path) > 0:
+            self._exp.copy(self._cut_path, paste_path, True)
+        else:
+            self._exp.copy(self._copy_path, paste_path)
+            
+        self._rename_entry.delete(0, END)
+        new_nodes = self._exp._list(self._exp.history[-1])
+        self._nodes = sorted(new_nodes, key=lambda x: x.name, reverse=True)
+        self._clean_list_box()
+        self._render_items()
+        pass
 
     def render(self):
         self._t.geometry('500x530')
