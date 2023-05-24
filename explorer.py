@@ -17,12 +17,33 @@ class Explorer:
             shutil.rmtree(uri)
         else:
             os.remove(uri)
+
+    def create(self, path = ""):
+        if path.startswith("/"):
+            path = path.removeprefix("/")
+            uri = os.path.join(self.history[-1], path)
+            os.makedirs(uri)
+        else:
+            uri = os.path.join(self.history[-1], path)
+            f = open(uri, "w+")
+            f.close()
     
     def rename(self, path, new_name):
         uri = os.path.join(self.history[-1],  path)
         new_uri = os.path.join(self.history[-1],  new_name)
         os.rename(uri, new_uri)
-    
+
+    def search(self, path, name):
+        directorio = os.listdir(path)
+        items = []
+        for item in directorio:
+            if name in item:
+                items.append(
+                    Node(item, os.path.isfile(os.path.join(path, item))))
+            if os.path.isdir(os.path.join(path, item)):
+                self.search(os.path.join(path, item), name)
+        return items
+
     def _list(self, path):
         nodes = []
         entries = os.listdir(path)

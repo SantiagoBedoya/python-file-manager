@@ -1,5 +1,5 @@
 from explorer import Explorer
-from tkinter import Tk, Listbox, Scrollbar, END, Button, Entry
+from tkinter import Tk, Listbox, Scrollbar, END, Button, Entry, StringVar, Toplevel, Label, messagebox
 
 
 class App:
@@ -12,7 +12,11 @@ class App:
 
         self._list_box = None
         self._rename_entry = None
-        
+        self._search_entry_text_variable = None
+        self._search_entry = None
+        self._create_entry = None
+        self._create_win = None
+
         self._get_nodes(None)
 
     def _get_nodes(self, path):
@@ -55,7 +59,11 @@ class App:
         self._list_box.delete(0, END)
 
     def _delete_file(self):
+        if len(self._selected) == 0:
+            return
         self._exp.delete(self._selected)
+        self._rename_entry.delete(0, END)
+        self._selected = ""
         new_nodes = self._exp._list(self._exp.history[-1])
         self._nodes = sorted(new_nodes, key=lambda x: x.name, reverse=True)
         self._clean_list_box()
@@ -63,36 +71,91 @@ class App:
 
     def _create_entries(self):
         # search entry
-        search_entry = Entry(self._t, width=40)
-        search_entry.grid(row=0, column=100)
+        search_entry_text_variable = StringVar()
+        self._search_entry_text_variable = search_entry_text_variable
+        search_entry = Entry(
+            self._t, textvariable=search_entry_text_variable, width=30)
+        search_entry.grid(row=0, column=10)
+        self._search_entry = search_entry
 
         # rename entry
-        rename_entry = Entry(self._t, width=40)
+        rename_entry = Entry(self._t, width=30)
         rename_entry.grid(row=4, columnspan=150)
         self._rename_entry = rename_entry
-
-    def _rename_file(self):
-        new_name = self._rename_entry.get()
-        self._exp.rename(self._selected, new_name)
-        new_nodes = self._exp._list(self._exp.history[-1])
-        self._nodes = sorted(new_nodes, key=lambda x: x.name, reverse=True)
-        self._clean_list_box()
-        self._render_items()
 
     def _create_buttons(self):
         prev_btn = Button(self._t, text="<-", width=2,
                           height=1, command=self._prev)
         prev_btn.grid(row=0, column=0)
 
-        search_btn = Button(self._t, text="Search", width=4, height=1)
-        search_btn.grid(row=0, column=101)
+        new_btn = Button(self._t, text="New", width=10, height=1, command=self._new)
+        new_btn.grid(row=0, column=20)
+
+        rename_btn = Button(self._t, text="Rename", width=4,
+                            height=1, command=self._rename_file)
+        rename_btn.grid(row=4)
 
         delete_btn = Button(self._t, text="Delete", width=4,
                             height=1, command=self._delete_file)
-        delete_btn.grid(row=6, columnspan=150)
-        rename_btn = Button(self._t, text="Rename", width=4,
-                            height=1, command=self._rename_file)
-        rename_btn.grid(row=5, columnspan=150)
+        delete_btn.grid(row=4, column=20)
+
+
+    def _new(self):
+        self._create_win = Toplevel(self._t)
+        
+        # create name input in new window
+        label = Label(self._create_win, text="Filename\nIf you want to create a folder add / before name")
+        label.grid(row=0)
+
+        name_entry = Entry(self._create_win, width=30)
+        name_entry.grid(row=1)
+        self._create_entry = name_entry
+
+        new_btn = Button(self._create_win, text="Create", width=4,
+                            height=1, command=self._create_file)
+        new_btn.grid(row=2)
+
+    def _create_file(self):
+        try:
+            self._exp.create(self._create_entry.get())
+        except FileExistsError:
+            messagebox.showerror(message="A file or folder already exist in this location", title="File already exists")
+        except:
+            messagebox.showerror(message="Something went wrong", title="Unexpected error")
+        self._create_win.destroy()
+        new_nodes = self._exp._list(self._exp.history[-1])
+        self._nodes = sorted(new_nodes, key=lambda x: x.name, reverse=True)
+        self._clean_list_box()
+        self._render_items()
+
+    def _rename_file(self):
+        new_name = self._rename_entry.get()
+
+        if len(new_name) == 0:
+            return
+
+        self._exp.rename(self._selected, new_name)
+        self._rename_entry.delete(0, END)
+        new_nodes = self._exp._list(self._exp.history[-1])
+        self._nodes = sorted(new_nodes, key=lambda x: x.name, reverse=True)
+        self._clean_list_box()
+        self._render_items()
+
+    # *args were given by StringVar().trace
+    def _filter(self,*args):
+        self.filter(self._exp.history[-1],self._search_entry_text_variable.get()) 
+
+    def filter(self,path,name):
+        if not name:
+            self._nodes =sorted(self._exp._list(self._exp.history[-1]), key=lambda x: x.name, reverse=True)
+            self._clean_list_box()
+            self._render_items()
+        else:
+            self._nodes=self._exp.search(path,name)
+            if len(self._nodes) > 0:
+                self._clean_list_box()
+                self._render_items()
+
 
     def _render_items(self):
         for node in self._nodes:
@@ -114,9 +177,12 @@ class App:
 
     def _select_item(self, event):
         selection = event.widget.curselection()
+        if len(selection) == 0:
+            return
         data = event.widget.get(selection[0])
-        data = data.replace("> ", "")
-        data = data.replace("- ", "")
+
+        data = data.removeprefix("> ")
+        data = data.removeprefix("- ")
         self._selected = data
 
         # clean entry
@@ -132,8 +198,11 @@ class App:
         # on select item
         self._list_box.bind("<<ListboxSelect>>", self._select_item)
 
+        # search variable trace
+        self._search_entry_text_variable.trace("w", self._filter)
+
     def render(self):
-        self._t.geometry('500x580')
+        self._t.geometry('500x530')
         self._t.title('File Manager')
 
         self._create_buttons()
