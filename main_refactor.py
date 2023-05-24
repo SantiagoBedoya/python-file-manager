@@ -18,6 +18,7 @@ class App:
         self._create_win = None
 
         self._copy_path = ''
+        self._cut_path = '';
 
         self._get_nodes(None)
 
@@ -220,6 +221,7 @@ class App:
         pass
 
     def _copy(self, event):
+        self._cut_path = ''
         self._copy_path = f"{self._exp.history[-1]}/{self._selected}"
 
     def _paste(self, event):
@@ -227,6 +229,7 @@ class App:
 
         if len(self._cut_path) > 0:
             self._exp.copy(self._cut_path, paste_path, True)
+            self._cut_path = ''
         else:
             self._exp.copy(self._copy_path, paste_path)
             
