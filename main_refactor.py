@@ -1,11 +1,22 @@
 from explorer import Explorer
-from tkinter import Tk, Listbox, Scrollbar, END, Button, Entry, StringVar, Toplevel, Label, messagebox
-import matplotlib.pyplot as plt
+from tkinter import (
+    Tk,
+    Listbox,
+    Scrollbar,
+    END,
+    Button,
+    Entry,
+    StringVar,
+    Toplevel,
+    Label,
+    messagebox,
+)
+
 
 class App:
     def __init__(self) -> None:
-        self._master_path = './test'
-        self._selected = ''
+        self._master_path = "./test"
+        self._selected = ""
         self._exp = Explorer(self._master_path)
         self._nodes = []
         self._t = Tk()
@@ -17,8 +28,8 @@ class App:
         self._create_entry = None
         self._create_win = None
 
-        self._copy_path = ''
-        self._cut_path = '';
+        self._copy_path = ""
+        self._cut_path = ""
 
         self._get_nodes(None)
 
@@ -26,22 +37,18 @@ class App:
         uri = None
         if path is not None:
             uri = path
-        self._nodes = sorted(
-            self._exp.list(uri),
-            key=lambda x: x.name,
-            reverse=True
-        )
+        self._nodes = sorted(self._exp.list(uri), key=lambda x: x.name, reverse=True)
 
     def _create_list_box(self):
         self._list_box = Listbox(
             self._t,
-            font=('Times', 18),
+            font=("Times", 18),
             bd=0,
             width=55,
             height=20,
-            fg='#464646',
+            fg="#464646",
             highlightthickness=0,
-            selectbackground='#a6a6a6',
+            selectbackground="#a6a6a6",
             activestyle="none",
         )
         self._list_box.grid(row=3, columnspan=120, pady=10)
@@ -76,8 +83,7 @@ class App:
         # search entry
         search_entry_text_variable = StringVar()
         self._search_entry_text_variable = search_entry_text_variable
-        search_entry = Entry(
-            self._t, textvariable=search_entry_text_variable, width=30)
+        search_entry = Entry(self._t, textvariable=search_entry_text_variable, width=30)
         search_entry.grid(row=0, column=10)
         self._search_entry = search_entry
 
@@ -87,44 +93,57 @@ class App:
         self._rename_entry = rename_entry
 
     def _create_buttons(self):
-        prev_btn = Button(self._t, text="<-", width=2,
-                          height=1, command=self._prev)
+        prev_btn = Button(self._t, text="<-", width=2, height=1, command=self._prev)
         prev_btn.grid(row=0, column=0)
 
         new_btn = Button(self._t, text="New", width=10, height=1, command=self._new)
         new_btn.grid(row=0, column=20)
 
-        rename_btn = Button(self._t, text="Rename", width=4,
-                            height=1, command=self._rename_file)
+        rename_btn = Button(
+            self._t, text="Rename", width=4, height=1, command=self._rename_file
+        )
         rename_btn.grid(row=4)
 
-        delete_btn = Button(self._t, text="Delete", width=4,
-                            height=1, command=self._delete_file)
+        delete_btn = Button(
+            self._t, text="Delete", width=4, height=1, command=self._delete_file
+        )
         delete_btn.grid(row=4, column=20)
-
 
     def _new(self):
         self._create_win = Toplevel(self._t)
-        
+
         # create name input in new window
-        label = Label(self._create_win, text="Filename\nIf you want to create a folder add / before name")
+        label = Label(
+            self._create_win,
+            text="Filename\nIf you want to create a folder add / before name",
+        )
         label.grid(row=0)
 
         name_entry = Entry(self._create_win, width=30)
         name_entry.grid(row=1)
         self._create_entry = name_entry
 
-        new_btn = Button(self._create_win, text="Create", width=4,
-                            height=1, command=self._create_file)
+        new_btn = Button(
+            self._create_win,
+            text="Create",
+            width=4,
+            height=1,
+            command=self._create_file,
+        )
         new_btn.grid(row=2)
 
     def _create_file(self):
         try:
             self._exp.create(self._create_entry.get())
         except FileExistsError:
-            messagebox.showerror(message="A file or folder already exist in this location", title="File already exists")
+            messagebox.showerror(
+                message="A file or folder already exist in this location",
+                title="File already exists",
+            )
         except:
-            messagebox.showerror(message="Something went wrong", title="Unexpected error")
+            messagebox.showerror(
+                message="Something went wrong", title="Unexpected error"
+            )
         self._create_win.destroy()
         new_nodes = self._exp._list(self._exp.history[-1])
         self._nodes = sorted(new_nodes, key=lambda x: x.name, reverse=True)
@@ -145,20 +164,23 @@ class App:
         self._render_items()
 
     # *args were given by StringVar().trace
-    def _filter(self,*args):
-        self.filter(self._exp.history[-1],self._search_entry_text_variable.get()) 
+    def _filter(self, *args):
+        self.filter(self._exp.history[-1], self._search_entry_text_variable.get())
 
-    def filter(self,path,name):
+    def filter(self, path, name):
         if not name:
-            self._nodes =sorted(self._exp._list(self._exp.history[-1]), key=lambda x: x.name, reverse=True)
+            self._nodes = sorted(
+                self._exp._list(self._exp.history[-1]),
+                key=lambda x: x.name,
+                reverse=True,
+            )
             self._clean_list_box()
             self._render_items()
         else:
-            self._nodes=self._exp.search(path,name)
+            self._nodes = self._exp.search(path, name)
             if len(self._nodes) > 0:
                 self._clean_list_box()
                 self._render_items()
-
 
     def _render_items(self):
         for node in self._nodes:
@@ -194,7 +216,6 @@ class App:
         self._rename_entry.insert(0, self._selected)
 
     def _set_listeners(self):
-
         # on double click
         self._list_box.bind("<Double-1>", self._open_folder)
 
@@ -221,7 +242,7 @@ class App:
         pass
 
     def _copy(self, event):
-        self._cut_path = ''
+        self._cut_path = ""
         self._copy_path = f"{self._exp.history[-1]}/{self._selected}"
 
     def _paste(self, event):
@@ -229,10 +250,10 @@ class App:
 
         if len(self._cut_path) > 0:
             self._exp.copy(self._cut_path, paste_path, True)
-            self._cut_path = ''
+            self._cut_path = ""
         else:
             self._exp.copy(self._copy_path, paste_path)
-            
+
         self._rename_entry.delete(0, END)
         new_nodes = self._exp._list(self._exp.history[-1])
         self._nodes = sorted(new_nodes, key=lambda x: x.name, reverse=True)
@@ -240,10 +261,9 @@ class App:
         self._render_items()
         pass
 
-
     def render(self):
-        self._t.geometry('500x530')
-        self._t.title('File Manager')
+        self._t.geometry("500x530")
+        self._t.title("File Manager")
 
         self._create_buttons()
         self._create_entries()
