@@ -185,7 +185,6 @@ class Explorer:
             is_cute (bool): Verifica si el nodo es cortado.
         """
         if is_cute:
-            # if the action is cut and paste, copy2 keeps timestamps
             shutil.move(copy_path, paste_path, shutil.copy2)
         else:
             shutil.copy(copy_path, paste_path)
