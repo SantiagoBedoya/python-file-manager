@@ -132,6 +132,11 @@ class App:
         self._rename_entry = rename_entry
 
     def _create_buttons(self):
+        """Crear botones
+
+        Este método crea la interfaz de los botones que se van a utilizar para
+        realizar las operaciones, dandole la ubicación a y los estilos.
+        """
         prev_btn = Button(
             self._t,
             image=self.back_btn,
@@ -157,9 +162,13 @@ class App:
         delete_btn.place(y=4, relx=0.55)
 
     def _new(self):
+        """Nuevo elemento
+
+        Este método abre una nueva ventana en la cual se debe indicar el nombre del nuevo
+        elemento para que este se cree y se añada a la ruta en la que se encuentra actualmente.
+        """
         self._create_win = Toplevel(self._t)
 
-        # create name input in new window
         label = Label(
             self._create_win,
             text="Filename\nIf you want to create a folder add / before name",
@@ -300,6 +309,12 @@ class App:
         self._rename_entry.insert(0, self._selected)
 
     def _set_listeners(self):
+        """Escucha de eventos
+
+        Este método se encarga de escuchar los eventos que se ejecutan en la aplicación,
+        estos eventos son: doble click, cambio en la barra de busqueda, control/command + c,
+        control/command + v y control/command + x
+        """
         # on double click
         self._list_box.bind("<Double-1>", self._open_folder)
 
