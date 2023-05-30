@@ -353,7 +353,7 @@ class App:
         self._copy_path = f"{self._exp.history[-1]}/{self._selected}"
 
     def _paste(self, event):
-        """Peger elemento
+        """Pegar elemento
 
         Este método pega un elemento en la ruta en la que se encuentra,
         si es una carpeta pega lo que esta contiene.
