@@ -7,7 +7,7 @@ class Node:
 
     Esta clase contiene atributos que son necesarios para inicializarla.
 
-    Attributes:
+    Args:
         name (str): Nombre del nodo.
         is_file (bool): Se utiliza para saber si es un archivo o una carpeta.
         path (str): Ruta en la que se encuentra el nodo.
